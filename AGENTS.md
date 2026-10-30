@@ -25,12 +25,26 @@ docker compose -f docker-compose.base44.yml up -d --build
 - Env files, in order: `.env.base44-defaults` (committed placeholders) then
   `/run/base44/app.env` (platform secrets, wins).
 
+## Mock data mode (no API key)
+
+When `VITE_YT_API_KEY` is empty, `src/axios.js` installs a mock axios adapter
+(`src/mock/mockApi.js` + `src/mock/mockData.js`) instead of calling Google. Every screen
+works offline: home feed (2 pages of 20), categories, search, channel pages, watch page,
+related videos and paged comments. Thumbnails/avatars are inline SVG data URLs, so no
+network images are needed. Set a real key to switch back to the live API — the mock
+adapter is only installed when the key is missing.
+
 ## Quirks
 
-- **`VITE_YT_API_KEY` is required for any content.** Without it the app still renders
-  (header, sidebar, search) but every data request returns `403` and the page shows
-  "Request failed with status code 403". Add the key as an environment variable/secret;
-  a Vite dev-server restart is needed after adding it (env is read at server start).
+- **A real key changes behavior.** With `VITE_YT_API_KEY` set, all requests go to the
+  YouTube Data API; the mock data is not mixed in. A Vite dev-server restart is needed
+  after adding the key (env is read at server start).
+- `react-show-more` (React <= 16 internals) crashed the watch page on React 18 with
+  "Cannot read properties of null (reading 'removeChild')" once a description rendered.
+  `VideoMeta` now uses its own `VideoDescription` clamp/expand component.
+- Search and Channel used to re-run their fetch effect on every state update (`searchresults`
+  / `channelVideos` in the dependency array), which refetched forever. Results are appended
+  functionally and the loops are keyed on `query` / `playListId` + `currentPage` only.
 - Vite 3 does not implement `server.allowedHosts`, so the preview host works without
   extra host allowlisting; `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS` is passed through for
   when the toolchain is upgraded (Vite >= 6.1).

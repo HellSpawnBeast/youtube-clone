@@ -16,11 +16,12 @@ export default function Search() {
   const { query } = useParams();
 
   useEffect(() => {
-    //change the state directly to delete all the existing videos if we change query
-    setsearchresults(searchresults.splice(0, searchresults.length));
+    //clear the previous results and start again from the first page
+    setsearchresults([]);
+    setcurrentPage("");
     //scroll to top
-    videoWrapRef?.current.scrollTo(0, 0);
-  }, [query, searchresults]);
+    videoWrapRef?.current?.scrollTo(0, 0);
+  }, [query]);
 
   //get the search results
   useEffect(() => {
@@ -39,8 +40,8 @@ export default function Search() {
           setnoresult("No result found. Try a different search");
         } else {
           setnoresult("");
-          setsearchresults(
-            currentPage ? [...searchresults, ...res.data.items] : res.data.items
+          setsearchresults((previous) =>
+            currentPage ? [...previous, ...res.data.items] : res.data.items
           );
           setnextPage(res.data.nextPageToken);
         }
@@ -50,7 +51,7 @@ export default function Search() {
         setsearchLoad(false);
         seterror("failed getting the result. " + err.message);
       });
-  }, [currentPage, query, searchresults]);
+  }, [currentPage, query]);
 
   //load more search videos
   const loadMore = () => {

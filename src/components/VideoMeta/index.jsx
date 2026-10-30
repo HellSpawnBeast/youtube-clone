@@ -2,7 +2,7 @@ import { memo } from "react";
 import { useHistory } from "react-router";
 import numeral from "numeral";
 import moment from "moment";
-import ShowMore from "react-show-more";
+import VideoDescription from "./VideoDescription";
 
 import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
 import "./_style.scss";
@@ -63,14 +63,7 @@ function VideoMeta({ data }) {
       </div>
 
       <pre className="video_details">
-        <ShowMore
-          lines={3}
-          more="Show more"
-          less="Show less"
-          anchorClass="show_more_details"
-        >
-          {data?.snippet.description}
-        </ShowMore>
+        <VideoDescription text={data?.snippet.description} />
       </pre>
     </div>
   );

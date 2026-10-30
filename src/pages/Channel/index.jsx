@@ -36,8 +36,8 @@ export default function Channel() {
           seterror("");
           setchannelVideoLoad(false);
           settotalChannelVideos(res.data.pageInfo.totalResults);
-          setchannelVideos(
-            currentPage ? [...channelVideos, ...res.data.items] : res.data.items
+          setchannelVideos((previous) =>
+            currentPage ? [...previous, ...res.data.items] : res.data.items
           );
           setnextPage(res.data.nextPageToken);
         })
@@ -45,7 +45,7 @@ export default function Channel() {
           setchannelVideoLoad(false);
           seterror("Failed getting the video. " + err.message);
         });
-  }, [playListId, currentPage, channelVideos]);
+  }, [playListId, currentPage]);
 
   //load more videos
   const loadMore = () => {

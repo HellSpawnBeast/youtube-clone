@@ -100,6 +100,20 @@
     max-width: 540px;
     white-space: pre-wrap;
 
+    .video_description {
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+
+      &.expanded {
+        display: block;
+        -webkit-line-clamp: unset;
+        overflow: visible;
+      }
+    }
+
     .show_more_details {
       display: block;
       text-decoration: none;
