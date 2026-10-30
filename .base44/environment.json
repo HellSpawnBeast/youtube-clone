@@ -1,0 +1,12 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "VITE_YT_API_KEY",
+      "description": "YouTube Data API v3 key (Google Cloud Console → APIs & Services → Credentials, YouTube Data API v3 enabled). Injected into the Vite dev server; without it every video/category/channel/comment request returns HTTP 403.",
+      "requiredAtBoot": false
+    }
+  ]
+}
