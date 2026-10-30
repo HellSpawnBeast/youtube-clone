@@ -1,0 +1,52 @@
+# Base44 sandbox environment for the YouTube clone (Vite + React SPA).
+#
+# Runs the app FROM THE CLONED SOURCE with Vite's dev server so edits are visible
+# immediately. Dependencies are installed at container startup from yarn.lock into
+# a named volume (never baked into an image).
+#
+#   docker compose -f docker-compose.base44.yml up -d --build
+#
+# The web entry point is host port 3000.
+
+services:
+  web:
+    image: node:22
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - web_node_modules:/app/node_modules
+    environment:
+      # Injected by the platform; Vite (>=6.1) uses it for allowed hosts.
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+      # Polling keeps Vite's watcher working reliably over a bind mount.
+      - CHOKIDAR_USEPOLLING=true
+    env_file:
+      # Committed placeholders only — the platform secrets file comes LAST so a
+      # real user-supplied value always wins.
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    command:
+      - sh
+      - -ec
+      - |
+        CI=true npx -y yarn@1.22.22 install --frozen-lockfile --non-interactive
+        exec ./node_modules/.bin/vite --host 0.0.0.0 --port 3000
+    restart: on-failure
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 180s
+    labels:
+      base44.project: youtube-clone
+      base44.kind: web
+      base44.port: "3000"
+
+volumes:
+  web_node_modules:
